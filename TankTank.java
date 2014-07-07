@@ -128,6 +128,7 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 	public void paint(Graphics g){
 		super.paint(g);
 		paintMyTank(mt,g);
+		
 	}
 	public void paintMyTank(MyTank mt, Graphics g){
 		paintTank(mt.x,mt.y,g,mt.direct,mt.type);
@@ -143,6 +144,9 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 				}
 			}
 		}
+	}
+	public void paintEnemyTank(EnemyTank et, Graphics g) {
+		
 	}
 	public void paintTank(int x,int y,Graphics g,int direct,int type)
 	{
@@ -256,16 +260,16 @@ class Tank {
 	public int direct;
 	public boolean isLive;
 	public int bulletNum;
-	//public Vector<Bullet> vb = null;
-	//public Bullet b = null;
+	public Vector<Bullet> vb = null; //new Vector<Bullet>();
+	public Bullet b = null;
 	public void setDirect(int direct){
 		this.direct = direct;
 	}
 }
 
 class MyTank extends Tank {
-	Vector<Bullet> vb=new Vector<Bullet>();
-	Bullet b=null;
+	//Vector<Bullet> vb = new Vector<Bullet>();
+	//Bullet b=null;
 
 	MyTank(int x, int y){
 		this.x = x;
@@ -273,6 +277,7 @@ class MyTank extends Tank {
 		this.speed = 3;
 		this.type = 0;
 		this.direct =0;
+		vb = new Vector<Bullet>();
 	}
 	MyTank(int x, int y, int speed, int direct ){
 		this.x = x;
@@ -280,6 +285,7 @@ class MyTank extends Tank {
 		this.speed = speed;
 		this.direct = direct;
 		this.type = 0;
+		vb = new Vector<Bullet>();
 	}
 	public void shotEnemy()
 	{	
@@ -320,6 +326,30 @@ class MyTank extends Tank {
 		this.x -= speed;
 	}
 }
+class EnemyTank extends Tank implements Runnable{
+	EnemyTank(int x, int y){
+		this.x = x;
+		this.y =y;
+		this.speed = 5;
+		this.type = 0;
+		this.direct =0;
+		vb = new Vector<Bullet>();
+	}
+	EnemyTank(int x, int y, int speed, int direct ){
+		this.x = x;
+		this.y = y;
+		this.speed = speed;
+		this.direct = direct;
+		this.type = 0;
+		vb = new Vector<Bullet>();
+	}
+	public void run(){
+		while(true){
+			for(int i =0; ){
+			}
+		}
+	}
+}
 
 class Bullet implements Runnable{
 	int age = 1;
@@ -334,8 +364,8 @@ class Bullet implements Runnable{
 		this.direct = 0;
 		this.speed = 2;
 		this.isLive = true;
-		//Thread t = new Thread(this);
-		//t.start();
+		Thread t = new Thread(this);
+		t.start();
 	}
 	Bullet(int x, int y, int direct){
 		this.x = x;
@@ -372,6 +402,7 @@ class Bullet implements Runnable{
 				this.isLive = false;
 			if(this.isLive == false)
 				break;
+			
 		}
 	}
 }
