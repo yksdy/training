@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.*;
 
 import javax.swing.*;
+import javax.imageio.ImageIO;
 
 public class TankTank extends JFrame implements ActionListener {
 	public static void main(String[] args){
@@ -118,17 +119,62 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 	public static boolean isLive = false;
 	public int age = 0;
 	public MyTank mt = null;
+	public int enemyNum = 6;
+	public int activityEnemy = 3;
+	public int myTankLife = 3;
+	public EnemyTank et = null;
+	public Vector<EnemyTank> vet = new Vector<EnemyTank>();
+
+	Vector<Bomb> bombs=new Vector<Bomb>();
+	Image image1=null;
+	Image image2=null;
+	Image image3=null;
 	
 	MyPanel(){
 		isLive = true;
 		mt = new MyTank(200,100);
+		et = new EnemyTank(50,50);
+		vet.add(et);
+		try {
+			image1=ImageIO.read(new File("bomb_1.gif"));
+			image2=ImageIO.read(new File("bomb_2.gif"));
+			image3=ImageIO.read(new File("bomb_3.gif"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	//	Thread t = new Thread(this);
 	//	t.start();
 	}
 	public void paint(Graphics g){
 		super.paint(g);
 		paintMyTank(mt,g);
+		paintEnemyTank(et,g);
+		paintBomb(bombs,g);
 		
+		//for(int i = 0; i < vet.size();i++)
+		//	paintEnemyTank(vet.get(i),g);
+		
+	}
+	public void paintBomb(Vector<Bomb> bo,Graphics g){	
+		for(int i=0;i<bo.size();i++)
+		{
+			System.out.println("bombs.size()="+bo.size());		
+			Bomb b=bo.get(i);
+			if(b.life>6)
+			{
+				g.drawImage(image1, b.x, b.y, 30, 30, this);
+			}else if(b.life>3)
+			{
+				g.drawImage(image2, b.x, b.y, 30, 30, this);
+			}else{
+				g.drawImage(image3, b.x, b.y, 30, 30, this);
+			}	
+			b.lifeDown();
+			if(b.life==0)
+			{
+				bo.remove(b);
+			}		
+		}
 	}
 	public void paintMyTank(MyTank mt, Graphics g){
 		paintTank(mt.x,mt.y,g,mt.direct,mt.type);
@@ -146,7 +192,19 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 		}
 	}
 	public void paintEnemyTank(EnemyTank et, Graphics g) {
-		
+		paintTank(et.x,et.y,g,et.direct,et.type);
+		g.setColor(Color.blue);
+		if(et.vb!=null){
+			for(int i = 0; i< et.vb.size(); i++){
+				et.b = et.vb.get(i);
+				if(et.b.isLive == true){
+					g.fillOval(et.b.x,et.b.y,3,3);
+				}
+				else{
+					et.vb.remove(i);
+				}
+			}
+		}	
 	}
 	public void paintTank(int x,int y,Graphics g,int direct,int type)
 	{
@@ -159,7 +217,6 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 			g.setColor(Color.yellow);
 			break;
 		}
-		
 		switch(direct)
 		{
 		case 0:
@@ -193,6 +250,48 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 			
 		}
 		
+		
+	}
+	public void war(){
+		for(int i = 0;i<mt.vb.size(); i++){
+			for(int j = 0; j<vet.size();j++){
+				if(isHit(vet.get(j),mt.vb.get(i)))
+					;
+				for(int vj =0;vj<vet.get(j).vb.size();vj++){
+					isHit(mt,vet.get(j).vb.get(vj));
+				}
+			}
+		}		
+	}
+	public boolean isHit(Tank t, Bullet b){
+		boolean b2=false;	
+		switch(t.direct)
+		{
+		case 0:
+		case 2:
+			if(b.x>t.x&&b.x<t.x+20&&b.y>t.y&&b.y<t.y+30)
+			{
+				b.isLive=false;
+				t.isLive=false;
+				b2=true;
+				Bomb bo1=new Bomb(t.x,t.y);
+				bombs.add(bo1);	
+			}	
+			break;
+		case 1:
+		case 3:
+			if(b.x>t.x&&b.x<t.x+30&&b.y>t.y&&b.y<t.y+20)
+			{
+				b.isLive=false;
+				t.isLive=false;
+				b2=true;
+				Bomb bo2=new Bomb(t.x,t.y);
+				bombs.add(bo2);
+				
+			}
+		}
+		
+		return b2;
 		
 	}
 	public void run(){
@@ -258,8 +357,8 @@ class Tank {
 	public int type;
 	public int speed;
 	public int direct;
-	public boolean isLive;
 	public int bulletNum;
+	public boolean isLive = false;
 	public Vector<Bullet> vb = null; //new Vector<Bullet>();
 	public Bullet b = null;
 	public void setDirect(int direct){
@@ -277,6 +376,7 @@ class MyTank extends Tank {
 		this.speed = 3;
 		this.type = 0;
 		this.direct =0;
+		this.isLive = true;
 		vb = new Vector<Bullet>();
 	}
 	MyTank(int x, int y, int speed, int direct ){
@@ -285,6 +385,7 @@ class MyTank extends Tank {
 		this.speed = speed;
 		this.direct = direct;
 		this.type = 0;
+		this.isLive = true;
 		vb = new Vector<Bullet>();
 	}
 	public void shotEnemy()
@@ -327,27 +428,103 @@ class MyTank extends Tank {
 	}
 }
 class EnemyTank extends Tank implements Runnable{
+	int fire = 3;
+//	boolean isLive = false;
 	EnemyTank(int x, int y){
 		this.x = x;
 		this.y =y;
-		this.speed = 5;
-		this.type = 0;
+		this.speed = 3;
+		this.type = 1;
 		this.direct =0;
+		isLive = true;
 		vb = new Vector<Bullet>();
+		Thread t = new Thread(this);
+		t.start();
 	}
 	EnemyTank(int x, int y, int speed, int direct ){
 		this.x = x;
 		this.y = y;
 		this.speed = speed;
 		this.direct = direct;
-		this.type = 0;
+		this.type = 1;
+		isLive = true;
 		vb = new Vector<Bullet>();
+		Thread t = new Thread(this);
+		t.start();
 	}
 	public void run(){
 		while(true){
-			for(int i =0; ){
+			this.direct = (int)(Math.random()*4);
+			try{
+				Thread.sleep(200);
+			}catch (Exception e){
+				}
+			for(int i =0;i < (int)(Math.random()*70); i++ ){
+				switch(this.direct){
+					case 0:
+						if(this.y>5)
+						{
+							if(fire>(int)(Math.random()*4)&& this.vb.size()<4)
+								shotTank();	
+							this.y -= this.speed;
+						}
+						break;
+					case 1:
+						if(this.x<595)
+						{
+							if(fire>(int)(Math.random()*4)&& this.vb.size()<4)
+								shotTank();	
+							this.x += this.speed;
+						}
+						break;
+					case 2:
+						if(this.y<395)
+						{	
+							if(fire>(int)(Math.random()*4)&& this.vb.size()<4)
+								shotTank();	
+							this.y += this.speed;
+						}
+						break;
+					case 3:
+						if(this.x>5)
+						{
+							if(fire>(int)(Math.random()*4)&& this.vb.size()<4)
+								shotTank();	
+							this.x -= this.speed;
+						}
+						break;
+				}
+															
 			}
+			System.out.println("#####"+ "run enemyTank" + "x = " + this.x + "y = " + this.y + " direct = " + this.direct);
+			if(isLive == false)
+				break;
 		}
+	}
+	public void shotTank()
+	{	
+		switch(this.direct)
+		{
+		case 0:
+			b=new Bullet(x+10,y,0);
+			vb.add(b);
+			break;
+		case 1:
+			b=new Bullet(x+30,y+10,1);
+			vb.add(b);
+			break;
+		case 2:
+			b=new Bullet(x+10,y+30,2);
+			vb.add(b);
+			break;
+		case 3:
+			b=new Bullet(x,y+10,3);
+			vb.add(b);
+			break;
+			
+		}
+		//Thread t=new Thread(b);
+		//t.start();	
 	}
 }
 
@@ -405,5 +582,24 @@ class Bullet implements Runnable{
 			
 		}
 	}
+}
+class Bomb{
+	int x,y;
+	int life=9;
+	boolean isLive=true;
+	public Bomb(int x,int y)
+	{
+		this.x=x;
+		this.y=y;
+	}
+	public void lifeDown()
+	{
+		if(life>0)
+		{
+			life--;
+		}else{
+			this.isLive=false;
+		}	
+	}			
 }
 
