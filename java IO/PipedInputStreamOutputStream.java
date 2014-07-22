@@ -4,6 +4,7 @@ public class PipedInputStreamOutputStream {
 		Send s = new Send();
 		Reciver r = new Reciver();
 		s.getPos().connect(r.getPis());
+	//	r.getPis().connect(s.getPos());
 		new Thread(s).start();
 		new Thread(r).start();
 		

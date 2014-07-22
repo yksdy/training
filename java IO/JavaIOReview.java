@@ -44,6 +44,8 @@ public class JavaIOReview {
 		for(int i = 0; i<str.length; i++){
 			System.out.println(str[i]);
 		}
+		
+		//RandomAccessFile 
 	}
 	public static void a(){
 	}	
