@@ -402,7 +402,7 @@ class MyTank extends Tank {
 		this.y = y;
 		this.direct = direct;
 		this.speed =3;
-	//	this.typw = 0;
+	//	this.type =0;
 	}
 	public void Shot() {
 		switch(direct){

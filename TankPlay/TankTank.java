@@ -257,11 +257,15 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 			for(int j = 0; j<vet.size();j++){
 				if(isHit(vet.get(j),mt.vb.get(i)))
 					;
-				for(int vj =0;vj<vet.get(j).vb.size();vj++){
-					isHit(mt,vet.get(j).vb.get(vj));
 				}
 			}
-		}		
+		}	
+		for(int j = 0; j<vet.size();j++){
+				for(int vj =0;vj<vet.get(j).vb.size();vj++){
+					if(isHit(mt,vet.get(j).vb.get(vj)))
+						;
+				}
+			}
 	}
 	public boolean isHit(Tank t, Bullet b){
 		boolean b2=false;	
@@ -303,10 +307,12 @@ class MyPanel extends JPanel implements Runnable,KeyListener{
 			System.out.println("MyPanel age is ::"+ age);
 			age++;
 			this.repaint();
+			war();
 			if(isLive == false)
 				break;
 		}
-	}		
+	}	
+	
 	public void keyPressed(KeyEvent arg0) {
 		if(arg0.getKeyCode()==KeyEvent.VK_W)
 		{
@@ -456,10 +462,10 @@ class EnemyTank extends Tank implements Runnable{
 		while(true){
 			this.direct = (int)(Math.random()*4);
 			try{
-				Thread.sleep(200);
+				Thread.sleep(400);
 			}catch (Exception e){
 				}
-			for(int i =0;i < (int)(Math.random()*70); i++ ){
+			for(int i =0;i < (int)(Math.random()*80); i++ ){
 				switch(this.direct){
 					case 0:
 						if(this.y>5)

@@ -217,8 +217,6 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	Hero hero=null;
 	
 	
-	
-	
 	//定义敌人的坦克组
 	Vector<EnemyTank> ets=new Vector<EnemyTank>();
 	Vector<Node> nodes=new Vector<Node>();

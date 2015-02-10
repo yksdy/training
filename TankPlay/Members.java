@@ -17,7 +17,6 @@ class AePlayWave extends Thread {
 		filename = wavfile;
 
 	}
-
 	public void run() {
 
 		File soundFile = new File(filename);// opern file
